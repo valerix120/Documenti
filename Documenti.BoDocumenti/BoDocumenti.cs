@@ -148,6 +148,10 @@ namespace Documenti.BoDocumenti
             regdoc.CambiaDocTestataDataReg(datareg);
         }
 
+        public void CambiaDocTestataDataDoc(DateTime datadoc)
+        {
+            regdoc.CambiaDocTestataDataDoc(datadoc);
+        }
         public void AggiungiRigaArticolo(string codart, string variante, decimal qta1)
         {
             regdoc.AddNewDocCorpo();

@@ -14,6 +14,7 @@ namespace Documenti.BoDocumenti
         void Inizializza(string server, string database, string utentesql, string password, string applicationName, string applicationUser, string applicationPwd, long ditta);
         void CreaDocumento(string coddocum, short pers);
         void CambiaDocTestataDataReg(DateTime datareg);
+        void CambiaDocTestataDataDoc(DateTime datadoc);
         void CambiaClifor(Int32 clifor);
         void CambiaClifor(Int32 clifor, Int32 coddest);
         void CambiaDocTestataCodDep(string coddep);
