@@ -121,6 +121,15 @@ namespace Documenti.BoDocumenti
             }       
         }
 
+        public void CambiaDocTestataSezDoc(string sezionaleDocumento, bool suggerisciNuovoNumero = true, string sezionaleDocumentoPrecedente = "", bool ripristinaVecchioNumero = true, bool rideterminaContropartita = true)
+        {
+            regdoc.CambiaDocTestataSezDoc(sezionaleDocumento, suggerisciNuovoNumero, sezionaleDocumentoPrecedente, ripristinaVecchioNumero, rideterminaContropartita);
+        }
+
+        public void CambiaDocTestataCodPag(object codicePagamento, bool rideterminaContropartita = true)
+        {
+            regdoc.CambiaDocTestataCodPag(codicePagamento, rideterminaContropartita);
+        }
         public bool GestDocCorpoProge()
         {
             return regdoc.RegDocIn.GestDocCorpoProge;
@@ -186,6 +195,34 @@ namespace Documenti.BoDocumenti
         {
             regdoc.ModifyDocCorpo(progriga);
             regdoc.CambiaDocCorpoDescrizioniArticolo(descrizione, descrizioneest);
+            regdoc.UpdateDocCorpo();
+        }
+
+        public void CambiaDocCorpoPrezzo1(Int32 progriga, object num, bool flagRicalcolaPrezzo2, bool flagRicalcolaPrezzoCF)
+        {
+            regdoc.ModifyDocCorpo(progriga);
+            regdoc.CambiaDocCorpoPrezzo1(num, flagRicalcolaPrezzo2, flagRicalcolaPrezzoCF);
+            regdoc.UpdateDocCorpo();
+        }
+
+        public void CambiaDocCorpoScPer1(Int32 progriga, object num)
+        {
+            regdoc.ModifyDocCorpo(progriga);
+            regdoc.CambiaDocCorpoScPer1(num);
+            regdoc.UpdateDocCorpo();
+        }
+
+        public void CambiaDocCorpoScPer2(Int32 progriga, object num)
+        {
+            regdoc.ModifyDocCorpo(progriga);
+            regdoc.CambiaDocCorpoScPer2(num);
+            regdoc.UpdateDocCorpo();
+        }
+
+        public void CambiaDocCorpoScPer3(Int32 progriga, object num)
+        {
+            regdoc.ModifyDocCorpo(progriga);
+            regdoc.CambiaDocCorpoScPer3(num);
             regdoc.UpdateDocCorpo();
         }
 
