@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BoTrasformazioneDocumenti.cs" />
     <Compile Include="BoAvanzamento.cs" />
     <Compile Include="BoDocumenti.cs" />
     <Compile Include="COMInterfaces\ComEventProvider.cs" />
@@ -66,11 +67,15 @@
     <Compile Include="COMInterfaces\MGBO_REGDOC\MGBO_REGDOC_Enums.cs" />
     <Compile Include="COMInterfaces\ComProgIdAttribute.cs" />
     <Compile Include="COMInterfaces\ComWrapper.cs" />
+    <Compile Include="COMInterfaces\MGBO_TRASFDOC\CLSMG_REGTRASFDOC.cs" />
+    <Compile Include="COMInterfaces\MGBO_TRASFDOC\CSLMG_REGTRASFDOCIN_Enums.cs" />
+    <Compile Include="COMInterfaces\MGBO_TRASFDOC\CSLMG_REGTRASFDOCIN.cs" />
     <Compile Include="COMInterfaces\PDBO_AVANZPROD\CLSPD_AVANZPROD.cs" />
     <Compile Include="COMInterfaces\PDBO_AVANZPROD\PDBP_AVANZPROD_Enums.cs" />
     <Compile Include="COMInterfaces\WrapperUtils.cs" />
     <Compile Include="COMInterfaces\Connection.cs" />
     <Compile Include="COMInterfaces\IVB6ComWrapper.cs" />
+    <Compile Include="IBoTrasformazioneDocumenti.cs" />
     <Compile Include="IBoAvanzamento.cs" />
     <Compile Include="IBoDocumenti.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -139,5 +144,6 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
