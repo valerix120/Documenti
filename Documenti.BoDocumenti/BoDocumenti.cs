@@ -84,23 +84,20 @@ namespace Documenti.BoDocumenti
         {
             regdoc.RegDocIn.Ditta = codditta;
             regdoc.RegDocIn.Documento = coddocum.TrimEnd();
+            regdoc.RegDocIn.GestDocTestata = true;
+            regdoc.RegDocIn.GestDocTestaRif = true;
+            regdoc.RegDocIn.GestDocTotali = true;
+            regdoc.RegDocIn.GestDocDatiAcc = true;
+            regdoc.RegDocIn.GestDocCorpo = true;
+            regdoc.RegDocIn.GestDocCorpoOrd = true;
             regdoc.Initialize();
             regdoc.ConfiguraRstGestiti(coddocum.TrimEnd(), pers);
             
             regdoc.OpenAllEmptyRecordsets();
-            regdoc.AddNewDocTestata();
-            
-            if (regdoc.rstDocCorpo.RecordCount > 0){
-
-                var dt = RstDoccorpo();
-                DataRow row = dt.AsEnumerable().FirstOrDefault();
-                if (String.IsNullOrEmpty((string)row["DO30_DESCART"].ToString()) && row["DO30_INDTIPORIGA"].ToString().TrimEnd() == "0")
-                {
-                    regdoc.rstDocCorpo.MoveFirst();
-                    regdoc.ModifyDocCorpo(1);
-                    regdoc.DeleteDocCorpo();
-                }
-            }
+            regdoc.AddNewDocTestata(false,false,true);
+            regdoc.AddNewDocTestaRif();
+            regdoc.AddNewDocTotali();
+            regdoc.AddNewDocDatiAcc();
         }
 
         public void CambiaDocTestataCodDep(string coddep)

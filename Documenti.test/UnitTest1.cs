@@ -19,7 +19,7 @@ namespace Documenti.test
             boreg.CreaDocumento("CLS-FATIMM2", 1);
             boreg.CambiaClifor(3);
             // boreg.CambiaDocTestaProgeCommessa("1", 0, false);
-            boreg.AggiungiRigaArticolo("TENS", "", 110);
+            boreg.AggiungiRigaArticolo("TENS", "", 11);
             boreg.UpdateDocTestata();
             boreg.Termina();
         }
