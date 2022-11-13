@@ -9,6 +9,8 @@ namespace Documenti.Interop
     internal interface CLSMG_REGTRASFDOC : IDisposable
     {
         CLSMG_REGTRASFDOCIN RegTrasfDocIn { get; set; }
+        CLSMG_REGTRASFDOCPARAM RegTrasfDocParam { get; set; }
+        bool DisabilitaAperturaMascheraLotti { get; set; }
         void OpenRecordsets(string FiltroTestata = "", 
                             string FiltroTestaRif = "", 
                             string FiltroTesAgenti = "", 

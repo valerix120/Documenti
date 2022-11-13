@@ -89,12 +89,7 @@ namespace Documenti.BoDocumenti
             
             regdoc.OpenAllEmptyRecordsets();
             regdoc.AddNewDocTestata();
-            if (regdoc.RegDocIn.GestDocTestaProge)
-            {
-                regdoc.AddNewDocTestaProge();
-               
-            }
-            string desctest = "";
+            
             if (regdoc.rstDocCorpo.RecordCount > 0){
 
                 var dt = RstDoccorpo();

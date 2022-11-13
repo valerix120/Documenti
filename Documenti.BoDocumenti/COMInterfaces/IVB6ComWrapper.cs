@@ -2,7 +2,7 @@
 
 namespace Documenti.Interop 
 {
-    [ComProgId("COMWRAP.CLSFW_COMWRAPPER")]
+    [ComProgId("COMWRAPPER.CLSFW_COMWRAPPER")]
     internal interface IVB6ComWrapper : IDisposable 
     {
         int Initialize(string serverName,

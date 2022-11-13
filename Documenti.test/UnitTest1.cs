@@ -12,28 +12,49 @@ namespace Documenti.test
         private const string REGDOC_INSTANCE_KEY = "MGBO_REGDOCUMENTI.CLSMG_REGDOC_Key";
 
         [TestMethod]
-        public void TestMethod1()
+        public void TestCreadocumento()
         {
             BoDocumenti.BoDocumenti boreg = new BoDocumenti.BoDocumenti();
-            boreg.Inizializza("VM-COCOZZA", "INDALCO", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
-            boreg.CreaDocumento("CLI-ORDINE", 1);
-            boreg.CambiaClifor(445);
+            boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
+            boreg.CreaDocumento("CLS-FATIMM2", 1);
+            boreg.CambiaClifor(3);
             // boreg.CambiaDocTestaProgeCommessa("1", 0, false);
-            boreg.AggiungiRigaArticolo("0030", "", 10);
-            boreg.AggiungiRigaArticolo("0030", "", 20);
+            boreg.AggiungiRigaArticolo("TENS", "", 110);
             boreg.UpdateDocTestata();
             boreg.Termina();
         }
 
         [TestMethod]
-        public void TestMethod2()
+        public void TestModificadocumento()
         {
             BoDocumenti.BoDocumenti boreg = new BoDocumenti.BoDocumenti();
-            boreg.Inizializza("VM-COCOZZA", "GAMMANEXT", "sa", "teamsystem", "GammaEnterprise", "TeamSa", "TeamSa", 1);
-            boreg.ModificaDoc("CLI-ORDINE", "201800002405");
-            DataTable dt = new DataTable();
-            dt = boreg.RstDoccorpo();
-            Assert.AreEqual(dt.Rows.Count, 1);
+            boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
+            boreg.ModificaDoc("CLS-FATIMM2   ", "202200000017");
+            boreg.CambiaDocCorpoPrezzo1(2, 8,false,false);
+            boreg.CambiaDocCorpoScPer1(2, 2);
+            boreg.CambiaDocCorpoScPer2(2, 3);
+            boreg.CambiaDocCorpoScPer3(2, 4);
+            boreg.UpdateDocTestata();
+            //DataTable dt = new DataTable();
+            //dt = boreg.RstDoccorpo();
+            //Assert.AreEqual(dt.Rows.Count, 1);
+            boreg.Termina();
+        }
+
+        [TestMethod]
+        public void TestTrasformazione()
+        {
+            BoDocumenti.BoDocumenti boreg = new BoDocumenti.BoDocumenti();
+            boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
+            boreg.ModificaDoc("CLS-FATIMM2   ", "202200000017");
+            boreg.CambiaDocCorpoPrezzo1(2, 8, false, false);
+            boreg.CambiaDocCorpoScPer1(2, 2);
+            boreg.CambiaDocCorpoScPer2(2, 3);
+            boreg.CambiaDocCorpoScPer3(2, 4);
+            boreg.UpdateDocTestata();
+            //DataTable dt = new DataTable();
+            //dt = boreg.RstDoccorpo();
+            //Assert.AreEqual(dt.Rows.Count, 1);
             boreg.Termina();
         }
 

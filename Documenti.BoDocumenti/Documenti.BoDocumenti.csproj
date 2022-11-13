@@ -68,6 +68,7 @@
     <Compile Include="COMInterfaces\ComProgIdAttribute.cs" />
     <Compile Include="COMInterfaces\ComWrapper.cs" />
     <Compile Include="COMInterfaces\MGBO_TRASFDOC\CLSMG_REGTRASFDOC.cs" />
+    <Compile Include="COMInterfaces\MGBO_TRASFDOC\CLSMG_REGTRASFDOCPARAM.cs" />
     <Compile Include="COMInterfaces\MGBO_TRASFDOC\CSLMG_REGTRASFDOCIN_Enums.cs" />
     <Compile Include="COMInterfaces\MGBO_TRASFDOC\CSLMG_REGTRASFDOCIN.cs" />
     <Compile Include="COMInterfaces\PDBO_AVANZPROD\CLSPD_AVANZPROD.cs" />

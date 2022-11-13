@@ -33,5 +33,6 @@ namespace Documenti.Interop
         bool GestDocCorpoPDC { get; set; }
         tsTrasfDocModalita Modalita { get; set; }
         bool VuotiModalitaBatch { get; set; }
+        bool Avanzamento { get; set; }
     }
 }

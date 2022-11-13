@@ -10,7 +10,20 @@ namespace Documenti.Interop
     {
         tsTrasfDocModalitaImportazione = 0,
         tsTrasfDocModalitaEsportazione = 1,
-        StoritsTrasfDocModalitaEvasioneMultiplaTrasformazionecizzato = 2
+        tsTrasfDocModalitaEvasioneMultiplaTrasformazione = 2
     }
 
+    internal enum tsTrasfDocIndTipoElab
+    {
+        tsTrasfDocIndTipoElabConfermaManuale = 0,
+        tsTrasfDocIndTipoElabTrasformazioneAutomatica = 1
+    }
+
+    internal enum tsTrasfDocIndCliFor
+    {
+        tsTrasfDocIndCliForNessuno = 0,
+        tsTrasfDocIndCliForCliente = 1,
+        tsTrasfDocIndCliForFornitore = 2
+    }
+   
 }

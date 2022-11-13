@@ -11,6 +11,7 @@ namespace Documenti.BoTrasformazioneDocumenti
     public class BoTrasformazioneDocumenti : IBoTrasformazioneDocumenti
     {
         internal static CLSMG_REGTRASFDOCIN RegTrasfDocIn { get; set; }
+        internal static CLSMG_REGTRASFDOCPARAM RegTrasfDocParam{ get; set; }
         internal static CLSMG_REGTRASFDOC trasfdoc { get; set; }
         internal static IVB6ComWrapper wrapper { get; set; }
         internal static long codditta { get; set; }
@@ -37,6 +38,7 @@ namespace Documenti.BoTrasformazioneDocumenti
             comObject = wrapper.GetCOMObject(TRASFDOC_INSTANCE_KEY);
             trasfdoc = COMWrapper.Wrap<CLSMG_REGTRASFDOC>(comObject);
             RegTrasfDocIn = COMWrapper.Wrap<CLSMG_REGTRASFDOCIN>(trasfdoc.RegTrasfDocIn);
+            RegTrasfDocParam = COMWrapper.Wrap<CLSMG_REGTRASFDOCPARAM> (trasfdoc.RegTrasfDocParam);
         }
 
         public void Inizialize()
@@ -73,13 +75,37 @@ namespace Documenti.BoTrasformazioneDocumenti
 
         }
 
-       public void EvasioneTotaleDocumenti(object IndiceRottura)
+       public void TrasformazioneDocumento(string modellotrasf, string numreg, object IndiceRottura)
         {
+            trasfdoc.RegTrasfDocIn.Avanzamento = false;
+            trasfdoc.RegTrasfDocIn.Ditta = codditta;
+            trasfdoc.RegTrasfDocIn.Modalita = tsTrasfDocModalita.tsTrasfDocModalitaEvasioneMultiplaTrasformazione;
+            trasfdoc.RegTrasfDocIn.ModelloTrasformazione = modellotrasf;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoGrid = false;
+            trasfdoc.Initialize();
 
-        }
-       public bool GeneraSingoloDocumento(object IndiceRottura)
-        {
-            return true;
+
+            trasfdoc.RegTrasfDocIn.GestDocTestata = true;
+            trasfdoc.RegTrasfDocIn.GestDocTestaRif = true;
+            trasfdoc.RegTrasfDocIn.GestDocTestaPers = false;
+            trasfdoc.RegTrasfDocIn.GestDocTestaEst = false;
+            trasfdoc.RegTrasfDocIn.GestDocTesAgenti = (trasfdoc.RegTrasfDocParam.INDCLIFORORIG != tsTrasfDocIndCliFor.tsTrasfDocIndCliForNessuno || trasfdoc.RegTrasfDocParam.INDCLIFORDEST != tsTrasfDocIndCliFor.tsTrasfDocIndCliForNessuno);
+            trasfdoc.RegTrasfDocIn.GestDocCorpo = true;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoProv = (trasfdoc.RegTrasfDocParam.INDCLIFORORIG != tsTrasfDocIndCliFor.tsTrasfDocIndCliForNessuno || trasfdoc.RegTrasfDocParam.INDCLIFORDEST != tsTrasfDocIndCliFor.tsTrasfDocIndCliForNessuno);
+            trasfdoc.RegTrasfDocIn.GestDocCorpoPers = false;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoEst = false;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoConf = false;
+            trasfdoc.RegTrasfDocIn.GestDocCorOrdDet = false;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoLot = true;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoConai = false;
+            trasfdoc.RegTrasfDocIn.GestDocCorpoPDC = false;
+
+            string pstrFiltroTestata = "DO11_NUMREG_CO99 = '" + numreg.TrimEnd() + "'";
+
+            trasfdoc.DisabilitaAperturaMascheraLotti = true;
+            trasfdoc.RegTrasfDocParam.INDTIPOELAB = tsTrasfDocIndTipoElab.tsTrasfDocIndTipoElabConfermaManuale;
+            trasfdoc.OpenRecordsets(pstrFiltroTestata, "", "", "", "", "", "", "", "");
+
         }
 
     }

@@ -23,8 +23,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                                    string FiltroDO35 = "",
                                    string FiltroDO36 = "");
 
-        void EvasioneTotaleDocumenti(object IndiceRottura);
-        bool GeneraSingoloDocumento(object IndiceRottura);
+        void TrasformazioneDocumento(string modellotrasf,string numreg, object IndiceRottura);
         void Termina();
         void Inizialize();
 
