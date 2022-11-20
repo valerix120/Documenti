@@ -24,5 +24,13 @@ namespace Documenti.Interop
         {
             return System.DBNull.Value;
         }
+
+        public enum RecordsetType
+        {
+            RstDocTestata,
+            RstDocCorpo,
+            RstDocCorpoLot
+
+        }
     }
 }

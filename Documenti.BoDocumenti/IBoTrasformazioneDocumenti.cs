@@ -23,7 +23,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                                    string FiltroDO35 = "",
                                    string FiltroDO36 = "");
 
-        void TrasformazioneDocumento(string modellotrasf,string numreg, object IndiceRottura);
+        void TrasformazioneDocumento(string modellotrasf, string numreg, List<DatiCorpo> daticorpo, List<DatiCorpoLot> datilotti);
         void Termina();
         void Inizialize();
 

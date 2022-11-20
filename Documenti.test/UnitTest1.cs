@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,9 +19,10 @@ namespace Documenti.test
             boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
             boreg.CreaDocumento("CLS-FATIMM2", 1);
             boreg.CambiaClifor(3);
-            // boreg.CambiaDocTestaProgeCommessa("1", 0, false);
+          
             boreg.AggiungiRigaArticolo("TENS", "", 11);
-            boreg.UpdateDocTestata();
+            string numreg = boreg.UpdateDocTestataNumreg();
+            Assert.AreEqual("2022", numreg.ToString().Substring(0,4));
             boreg.Termina();
         }
 
@@ -35,6 +37,7 @@ namespace Documenti.test
             boreg.CambiaDocCorpoScPer2(2, 3);
             boreg.CambiaDocCorpoScPer3(2, 4);
             boreg.UpdateDocTestata();
+
             //DataTable dt = new DataTable();
             //dt = boreg.RstDoccorpo();
             //Assert.AreEqual(dt.Rows.Count, 1);
@@ -44,18 +47,23 @@ namespace Documenti.test
         [TestMethod]
         public void TestTrasformazione()
         {
-            BoDocumenti.BoDocumenti boreg = new BoDocumenti.BoDocumenti();
-            boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
-            boreg.ModificaDoc("CLS-FATIMM2   ", "202200000017");
-            boreg.CambiaDocCorpoPrezzo1(2, 8, false, false);
-            boreg.CambiaDocCorpoScPer1(2, 2);
-            boreg.CambiaDocCorpoScPer2(2, 3);
-            boreg.CambiaDocCorpoScPer3(2, 4);
-            boreg.UpdateDocTestata();
-            //DataTable dt = new DataTable();
-            //dt = boreg.RstDoccorpo();
-            //Assert.AreEqual(dt.Rows.Count, 1);
-            boreg.Termina();
+            BoTrasformazioneDocumenti.BoTrasformazioneDocumenti trasfdoc = new BoTrasformazioneDocumenti.BoTrasformazioneDocumenti();
+            trasfdoc.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
+
+            List<DatiCorpo> dtcorpo = new List<DatiCorpo>();
+
+            DatiCorpo co = new DatiCorpo();
+            List<DatiCorpoLot> dtcorpolot = new List<DatiCorpoLot>();
+
+            co.Numreg = "202200000048";
+            co.ProgRiga = 2;
+            co.Qta1 = 7;
+            co.Qta2 = 0;
+
+            dtcorpo.Add(co);
+
+            trasfdoc.TrasformazioneDocumento("CLS-ORDFATIMM", "202200000048", dtcorpo, dtcorpolot);
+            trasfdoc.Termina();
         }
 
         //[TestMethod]

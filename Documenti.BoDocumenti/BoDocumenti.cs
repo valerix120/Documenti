@@ -3,11 +3,14 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using static Documenti.Interop.WrapperUtils;
 
 namespace Documenti.BoDocumenti
 {
     public class BoDocumenti : IBoDocumenti
     {
+
+        private object numeroregistrazione;
         internal static CLSMG_REGDOC regdoc { get; set; }
         internal static CLSMG_REGDOCIN RegDocIn { get; set; }
         internal static IVB6ComWrapper wrapper { get; set; }
@@ -15,6 +18,74 @@ namespace Documenti.BoDocumenti
         internal static object comObject { get; set; }
         internal static string REGDOC_PROGID = "MGBO_REGDOCUMENTI.CLSMG_REGDOC";
         internal static string REGDOC_INSTANCE_KEY = "MGBO_REGDOCUMENTI.CLSMG_REGDOC_Key";
+
+        private AfterCommitTransactionEventHandler _afterCommitTransaction;
+
+        private object GetFieldValue(RecordsetType rsType, string fieldName)
+        {
+            IField objField = GetFieldFromRecordset(rsType, fieldName);
+            if (objField == null)
+                return null;
+            return objField.Value;
+        }
+
+        private IField GetFieldFromRecordset(RecordsetType rsType, string fieldName)
+        {
+            if (String.IsNullOrEmpty(fieldName))
+                throw new ArgumentException("fieldName");
+            //CheckInit();
+
+            IRecordset rst = GetRecordset(rsType);
+            if (rst == null)
+            {
+                // Logger.Warn("DocumentoService.GetFieldFromRecordset: recordset is null, ensure CLSMG_REGDOCIN has correct configurations!", rsType, fieldName);
+                return null;
+            }
+
+            // Logger.Debug("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1}", rsType, fieldName);
+            try
+            {
+                object obj = rst.Fields[fieldName];
+                IField objField = WrapperUtils.WrapField(obj);
+                return objField;
+            }
+            catch (Exception)
+            {
+                //Logger.Warn("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1} - errore", rsType, fieldName);
+                return null;
+            }
+        }
+
+        internal IRecordset GetRecordset(RecordsetType rsType)
+        {
+            IRecordset rst;
+            switch (rsType)
+            {
+                case RecordsetType.RstDocTestata:
+                    rst = regdoc.rstDocTestata;
+                    break;
+                case RecordsetType.RstDocCorpo:
+                    rst = regdoc.rstDocCorpo;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("rsType");
+            }
+            return rst;
+        }
+
+        //private void CheckInit()
+        //{
+        //    if (_isInitialized)
+        //        return;
+
+        //    const string err = "You have to call Initialize method before!";
+        //    //Logger.Error("DocumentoService error: {0}", err);
+        //    throw new InvalidOperationException(err);
+        //}
+        void REGDOC_AfterCommitTransaction(object sender, AfterCommitTransactionEventArgs e)
+        {
+            numeroregistrazione = GetFieldValue(RecordsetType.RstDocTestata, "DO11_NUMREG_CO99");
+        }
 
         public void Inizializza(string server, string database, string utentesql, string password, string applicationName, string applicationUser, string applicationPwd, long ditta)
         {
@@ -30,6 +101,8 @@ namespace Documenti.BoDocumenti
             comObject = wrapper.GetCOMObject(REGDOC_INSTANCE_KEY);
             regdoc = COMWrapper.Wrap<CLSMG_REGDOC>(comObject);
             RegDocIn = COMWrapper.Wrap<CLSMG_REGDOCIN>(regdoc.RegDocIn);
+            _afterCommitTransaction = REGDOC_AfterCommitTransaction;
+            regdoc.AfterCommitTransaction += _afterCommitTransaction;
         }
 
         public void Inizialize()
@@ -77,6 +150,14 @@ namespace Documenti.BoDocumenti
         {
             regdoc.RicalcolaTotaliDaRigheCorpo();
             regdoc.UpdateDocTestata();
+
+        }
+
+        public string UpdateDocTestataNumreg()
+        {
+            regdoc.RicalcolaTotaliDaRigheCorpo();
+            regdoc.UpdateDocTestata();
+            return numeroregistrazione.ToString();
 
         }
 

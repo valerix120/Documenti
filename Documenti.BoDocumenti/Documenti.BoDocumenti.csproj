@@ -76,6 +76,7 @@
     <Compile Include="COMInterfaces\WrapperUtils.cs" />
     <Compile Include="COMInterfaces\Connection.cs" />
     <Compile Include="COMInterfaces\IVB6ComWrapper.cs" />
+    <Compile Include="DomainModel.cs" />
     <Compile Include="IBoTrasformazioneDocumenti.cs" />
     <Compile Include="IBoAvanzamento.cs" />
     <Compile Include="IBoDocumenti.cs" />

@@ -3,15 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Documenti.BoDocumenti;
+using static Documenti.Interop.WrapperUtils;
+using System.Collections;
+using System.Linq;
 
 namespace Documenti.BoTrasformazioneDocumenti
 {
-
-
     public class BoTrasformazioneDocumenti : IBoTrasformazioneDocumenti
     {
         internal static CLSMG_REGTRASFDOCIN RegTrasfDocIn { get; set; }
-        internal static CLSMG_REGTRASFDOCPARAM RegTrasfDocParam{ get; set; }
+        internal static CLSMG_REGTRASFDOCPARAM RegTrasfDocParam { get; set; }
         internal static CLSMG_REGTRASFDOC trasfdoc { get; set; }
         internal static IVB6ComWrapper wrapper { get; set; }
         internal static long codditta { get; set; }
@@ -38,7 +40,7 @@ namespace Documenti.BoTrasformazioneDocumenti
             comObject = wrapper.GetCOMObject(TRASFDOC_INSTANCE_KEY);
             trasfdoc = COMWrapper.Wrap<CLSMG_REGTRASFDOC>(comObject);
             RegTrasfDocIn = COMWrapper.Wrap<CLSMG_REGTRASFDOCIN>(trasfdoc.RegTrasfDocIn);
-            RegTrasfDocParam = COMWrapper.Wrap<CLSMG_REGTRASFDOCPARAM> (trasfdoc.RegTrasfDocParam);
+            RegTrasfDocParam = COMWrapper.Wrap<CLSMG_REGTRASFDOCPARAM>(trasfdoc.RegTrasfDocParam);
         }
 
         public void Inizialize()
@@ -75,7 +77,7 @@ namespace Documenti.BoTrasformazioneDocumenti
 
         }
 
-       public void TrasformazioneDocumento(string modellotrasf, string numreg, object IndiceRottura)
+        public void TrasformazioneDocumento(string modellotrasf, string numreg, List<DatiCorpo> daticorpo, List<DatiCorpoLot> datilotti)
         {
             trasfdoc.RegTrasfDocIn.Avanzamento = false;
             trasfdoc.RegTrasfDocIn.Ditta = codditta;
@@ -103,9 +105,105 @@ namespace Documenti.BoTrasformazioneDocumenti
             string pstrFiltroTestata = "DO11_NUMREG_CO99 = '" + numreg.TrimEnd() + "'";
 
             trasfdoc.DisabilitaAperturaMascheraLotti = true;
-            trasfdoc.RegTrasfDocParam.INDTIPOELAB = tsTrasfDocIndTipoElab.tsTrasfDocIndTipoElabConfermaManuale;
+            trasfdoc.RegTrasfDocParam.INDTIPOELAB = tsTrasfDocIndTipoElab.tsTrasfDocIndTipoElabTrasformazioneAutomatica;
             trasfdoc.OpenRecordsets(pstrFiltroTestata, "", "", "", "", "", "", "", "");
 
+            IRecordset rstTestata = GetRecordset(RecordsetType.RstDocTestata);
+            IRecordset rstCorpo = GetRecordset(RecordsetType.RstDocCorpo);
+            IRecordset rstLotti = GetRecordset(RecordsetType.RstDocCorpoLot);
+
+            rstTestata.MoveFirst(); // rstTestata.MoveFirst();
+            while (!rstTestata.EOF)
+            {
+                Console.WriteLine("etro nel rst testata" + rstTestata.RecordCount.ToString() );
+                if (daticorpo != null && daticorpo.Count > 0)
+                {
+
+                    rstCorpo.Filter = "DO30_NUMREG_CO99 = '" + numreg +"'";
+                    rstCorpo.MoveFirst();
+                    Console.WriteLine("etro nel dati corpo" + rstCorpo.RecordCount.ToString());
+                    while (!rstCorpo.EOF)
+                    {
+                        Console.WriteLine("scorro i dati corpo");
+                        int progriga = int.Parse(GetFieldValue(RecordsetType.RstDocCorpo, "DO30_PROGRIGA").ToString());
+                        List<DatiCorpo> dtfiltrati = daticorpo.Where(x => x.ProgRiga == progriga).ToList();
+                        if (dtfiltrati.Count != 0)
+                        {
+                            Console.WriteLine("filtro prog riga");
+                            foreach (var item in dtfiltrati)
+                            {
+                                Console.WriteLine("aggiorno le qta");
+                                trasfdoc.CambiaDocCorpoQta1(item.Qta1, false,false);
+                                trasfdoc.CambiaDocCorpoQta2(item.Qta2, false,false);
+
+                                rstCorpo.UpdateBatch();
+                            }
+                        }
+                        rstCorpo.MoveNext();
+                    }
+                }
+                rstTestata.MoveNext();
+            }
+
+            Console.WriteLine("genero i doc");
+            trasfdoc.GeneraTuttiDocumenti();
+
+        }
+
+
+        private IRecordset GetRecordset(RecordsetType rsType)
+        {
+            IRecordset rst;
+            switch (rsType)
+            {
+                case RecordsetType.RstDocTestata:
+                    rst = trasfdoc.rstDocTestata;
+                    break;
+                case RecordsetType.RstDocCorpo:
+                    rst = trasfdoc.rstDocCorpo;
+                    break;
+                case RecordsetType.RstDocCorpoLot:
+                    rst = trasfdoc.rstDocCorpoLot;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("rsType");
+            }
+            return rst;
+        }
+
+        private object GetFieldValue(RecordsetType rsType, string fieldName)
+        {
+            IField objField = GetFieldFromRecordset(rsType, fieldName);
+            if (objField == null)
+                return null;
+            return objField.Value;
+        }
+
+        private IField GetFieldFromRecordset(RecordsetType rsType, string fieldName)
+        {
+            if (String.IsNullOrEmpty(fieldName))
+                throw new ArgumentException("fieldName");
+            //CheckInit();
+
+            IRecordset rst = GetRecordset(rsType);
+            if (rst == null)
+            {
+                // Logger.Warn("DocumentoService.GetFieldFromRecordset: recordset is null, ensure CLSMG_REGDOCIN has correct configurations!", rsType, fieldName);
+                return null;
+            }
+
+            // Logger.Debug("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1}", rsType, fieldName);
+            try
+            {
+                object obj = rst.Fields[fieldName];
+                IField objField = WrapperUtils.WrapField(obj);
+                return objField;
+            }
+            catch (Exception)
+            {
+                //Logger.Warn("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1} - errore", rsType, fieldName);
+                return null;
+            }
         }
 
     }

@@ -25,6 +25,7 @@ namespace Documenti.BoDocumenti
         void CambiaDocTestaProgeCommessa(object codcommessa, object codsottocomessa, bool modificasurighecorpo);
         void ModificaDoc(string codicedoc, string numreg);
         void UpdateDocTestata();
+        string UpdateDocTestataNumreg();
         void AggiungiRigaArticolo(string codart, string variante, decimal qta1);
         void AggiungiRigaDescrittiva(string descrizione, string descrizioneest);
         void CambiaCodart(Int32 progriga, string codart, string variante);
