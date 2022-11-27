@@ -10,6 +10,7 @@ namespace Documenti.Interop
     {
         CLSMG_REGTRASFDOCIN RegTrasfDocIn { get; set; }
         CLSMG_REGTRASFDOCPARAM RegTrasfDocParam { get; set; }
+        CLSMG_DOCREGMAGAZ DocRegMagazzino { get; }
         IRecordset rstDocTestata { get; set; }
         IRecordset rstDocCorpo { get; set; }
         IRecordset rstDocCorpoLot { get; set; }
@@ -38,5 +39,20 @@ namespace Documenti.Interop
         void Terminate();
         void Initialize();
 
-    } 
+    }
+
+    internal interface CLSMG_DOCREGMAGAZ : IDisposable
+    {
+        CLSLT_MOVLOTTI  MovimentazioneLotti_Ext { get; }
+    }
+
+    internal interface CLSLT_MOVLOTTI : IDisposable
+    {
+        CLSLT_PARAMSMOVLOTTI Parametri { get; }
+    }
+
+    internal interface CLSLT_PARAMSMOVLOTTI: IDisposable
+    {
+        bool ModalitaPresidiata { get; set; }
+    }
 }

@@ -34,5 +34,6 @@ namespace Documenti.Interop
         tsTrasfDocModalita Modalita { get; set; }
         bool VuotiModalitaBatch { get; set; }
         bool Avanzamento { get; set; }
+        bool DisabilitaMessaggi { get; set; }
     }
 }

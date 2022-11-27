@@ -115,6 +115,9 @@ namespace Documenti.BoTrasformazioneDocumenti
             rstTestata.MoveFirst(); // rstTestata.MoveFirst();
             while (!rstTestata.EOF)
             {
+                trasfdoc.DocRegMagazzino.MovimentazioneLotti_Ext.Parametri.ModalitaPresidiata = false;
+                trasfdoc.RegTrasfDocIn.DisabilitaMessaggi = true;
+
                 Console.WriteLine("etro nel rst testata" + rstTestata.RecordCount.ToString() );
                 if (daticorpo != null && daticorpo.Count > 0)
                 {
@@ -204,6 +207,67 @@ namespace Documenti.BoTrasformazioneDocumenti
                 //Logger.Warn("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1} - errore", rsType, fieldName);
                 return null;
             }
+        }
+
+        private bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
+        {
+            bool res = false;
+            string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;
+           
+            string commandText = @"INSERT INTO MG4G_ANAGRLOTTI
+                (
+                MG4G_DITTA_CG18
+                ,MG4G_CODART_MG66
+                ,MG4G_OPZIONE_MG5E 
+                ,MG4G_CODLOTTO 
+                ,MG4G_DESCLOTTO 
+                ,MG4G_DATACRE 
+                ,MG4G_DATASCAD
+                ,MG4G_GUID 
+                ) 
+                VALUES ( 
+                       @codditta,
+                       @codiceArticolo,
+                       @variante ,
+                       @codlotto,
+                       @descrlotto,
+                       @datacre ,
+                       @datascad,
+                       @guid
+                       )";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(commandText, connection);
+                command.Parameters.Add("@codditta", SqlDbType.Decimal);
+                command.Parameters["@codditta"].Value = codditta;
+                command.Parameters.Add("@codiceArticolo", SqlDbType.Char);
+                command.Parameters["@codiceArticolo"].Value = codart;
+                command.Parameters.Add("@variante", SqlDbType.Char);
+                command.Parameters["@variante"].Value = variante;
+                command.Parameters.Add("@codlotto", SqlDbType.Char);
+                command.Parameters["@codlotto"].Value = codlotto;
+                command.Parameters.Add("@descrlotto", SqlDbType.Char);
+                command.Parameters["@descrlotto"].Value = descrlotto;
+                command.Parameters.Add("@datacre", SqlDbType.DateTime);
+                command.Parameters["@datacre"].Value = datacre;
+                command.Parameters.Add("@datascad", SqlDbType.DateTime);
+                command.Parameters["@datascad"].Value = datascad;
+                command.Parameters.Add("@guid", SqlDbType.Char);
+                command.Parameters["@guid"].Value = Guid.NewGuid();
+
+                try
+                {
+                    connection.Open();
+                    res = true;
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    res = false;
+                }
+            }
+            return res;
         }
 
     }
