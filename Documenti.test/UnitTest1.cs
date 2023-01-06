@@ -51,18 +51,39 @@ namespace Documenti.test
             trasfdoc.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
 
             List<DatiCorpo> dtcorpo = new List<DatiCorpo>();
-
             DatiCorpo co = new DatiCorpo();
-            List<DatiCorpoLot> dtcorpolot = new List<DatiCorpoLot>();
-
-            co.Numreg = "202200000048";
+            
+            co.Numreg = "202300000002";
             co.ProgRiga = 2;
-            co.Qta1 = 7;
+            co.Codart = "CONTRIBUTO";
+            co.Qta1 = 5;
             co.Qta2 = 0;
 
             dtcorpo.Add(co);
 
-            trasfdoc.TrasformazioneDocumento("CLS-ORDFATIMM", "202200000048", dtcorpo, dtcorpolot);
+            List<DatiCorpoLot> dtcorpolot = new List<DatiCorpoLot>();
+            DatiCorpoLot colot = new DatiCorpoLot();
+
+            colot.Proglotto = 1;
+            colot.Progriga = 2;
+            colot.Codart = "CONTRIBUTO";
+            colot.CodLotto = "LOTTO2";
+            colot.Qta1Lot = 5;
+            colot.Qta2Lot = 0;
+
+
+            dtcorpolot.Add(colot);
+
+            colot.Proglotto = 2;
+            colot.Progriga = 2;
+            colot.Codart = "CONTRIBUTO";
+            colot.CodLotto = "LOTTO1";
+            colot.Qta1Lot = 5;
+            colot.Qta2Lot = 0;
+
+            dtcorpolot.Add(colot);
+
+            trasfdoc.TrasformazioneDocumento("CLS-ORDDDT", "202300000002", dtcorpo, dtcorpolot);
             trasfdoc.Termina();
         }
 

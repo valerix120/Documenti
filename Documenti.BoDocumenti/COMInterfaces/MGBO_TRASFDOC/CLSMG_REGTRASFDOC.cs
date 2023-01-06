@@ -44,6 +44,7 @@ namespace Documenti.Interop
     internal interface CLSMG_DOCREGMAGAZ : IDisposable
     {
         CLSLT_MOVLOTTI  MovimentazioneLotti_Ext { get; }
+        void MovimentazioneLotti_Terminate();
     }
 
     internal interface CLSLT_MOVLOTTI : IDisposable

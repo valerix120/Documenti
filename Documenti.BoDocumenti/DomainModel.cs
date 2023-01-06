@@ -10,18 +10,22 @@ namespace Documenti
     {
         public string Numreg { get; set; }
         public int ProgRiga { get; set; }
+        public string Codart { get; set; }
+        public string Coddep { get; set; }
         public decimal Qta1 { get; set; }
         public decimal Qta2 { get; set; }
     }
 
     public class DatiCorpoLot
     {
-        public int ProgMG4F { get; set; }
         public int Progriga { get; set; }
+        public string Codart { get; set; }
         public int Proglotto { get; set; }
         public string CodLotto { get; set; }
         public string Serialnumber { get; set; }
         public decimal Qta1Lot { get; set; }
         public decimal Qta2Lot { get; set; }
+        public DateTime Datacre { get; set; }
+        public DateTime Datascad { get; set; }
     }
 }
