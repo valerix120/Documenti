@@ -1,9 +1,11 @@
 ﻿using Documenti.Interop;
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using static Documenti.Interop.WrapperUtils;
+using static Documenti.BoTrasformazioneDocumenti.BoTrasformazioneDocumenti;
 
 namespace Documenti.BoDocumenti
 {
@@ -14,7 +16,13 @@ namespace Documenti.BoDocumenti
         internal static CLSMG_REGDOC regdoc { get; set; }
         internal static CLSMG_REGDOCIN RegDocIn { get; set; }
         internal static IVB6ComWrapper wrapper { get; set; }
-        internal static long codditta { get; set; }
+        internal static long Codditta { get; set; }
+        internal static string Server { get; set; }
+        internal static string Database { get; set; }
+        internal static string Utentesql { get; set; }
+        internal static string Password { get; set; }
+        internal static int ProgMovLotti { get; set; }
+        internal static string TipoMovLotti { get; set; }
         internal static object comObject { get; set; }
         internal static string REGDOC_PROGID = "MGBO_REGDOCUMENTI.CLSMG_REGDOC";
         internal static string REGDOC_INSTANCE_KEY = "MGBO_REGDOCUMENTI.CLSMG_REGDOC_Key";
@@ -38,6 +46,7 @@ namespace Documenti.BoDocumenti
             IRecordset rst = GetRecordset(rsType);
             if (rst == null)
             {
+                Console.WriteLine("DocumentoService.GetFieldFromRecordset: recordset is null, ensure CLSMG_REGDOCIN has correct configurations!");
                 // Logger.Warn("DocumentoService.GetFieldFromRecordset: recordset is null, ensure CLSMG_REGDOCIN has correct configurations!", rsType, fieldName);
                 return null;
             }
@@ -47,11 +56,13 @@ namespace Documenti.BoDocumenti
             {
                 object obj = rst.Fields[fieldName];
                 IField objField = WrapperUtils.WrapField(obj);
+                Console.WriteLine(fieldName);
                 return objField;
             }
             catch (Exception)
             {
                 //Logger.Warn("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1} - errore", rsType, fieldName);
+                Console.WriteLine("DocumentoService.GetFieldFromRecordset: rsType={0}, fieldName={1} - errore");
                 return null;
             }
         }
@@ -67,11 +78,25 @@ namespace Documenti.BoDocumenti
                 case RecordsetType.RstDocCorpo:
                     rst = regdoc.rstDocCorpo;
                     break;
+                case RecordsetType.RstDocCorpoLot:
+                    rst = regdoc.rstDocCorpoLot;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException("rsType");
             }
             return rst;
         }
+
+        private void SetFieldValue(RecordsetType rsType, string fieldName, object value)
+        {
+            IField objField = GetFieldFromRecordset(rsType, fieldName);
+            if (objField == null)
+                return;
+            if (value == null)
+                value = DBNull.Value;
+            objField.Value = value;
+        }
+
 
         //private void CheckInit()
         //{
@@ -89,9 +114,12 @@ namespace Documenti.BoDocumenti
 
         public void Inizializza(string server, string database, string utentesql, string password, string applicationName, string applicationUser, string applicationPwd, long ditta)
         {
-            codditta = ditta;
+            Codditta = ditta;
+            Database = database;
+            Utentesql = utentesql;
+            Password = password;
             wrapper = COMWrapper.CreateInstance<IVB6ComWrapper>();
-            wrapper.Initialize(server, database, utentesql, password, "GammaEnterprise", applicationUser, applicationPwd, codditta);
+            wrapper.Initialize(server, database, utentesql, password, "GammaEnterprise", applicationUser, applicationPwd, Codditta);
 
             wrapper.CreateCOMObject(REGDOC_PROGID, REGDOC_INSTANCE_KEY);
             wrapper.AssignSessionObject(REGDOC_INSTANCE_KEY, SessionObjectNames.ActiveInterface, "RegDocIn.ActiveInterface");
@@ -124,7 +152,7 @@ namespace Documenti.BoDocumenti
 
         public void ModificaDoc(string codicedoc, string numreg)
         {
-            regdoc.RegDocIn.Ditta = codditta;
+            regdoc.RegDocIn.Ditta = Codditta;
             regdoc.RegDocIn.GestDocTestata = true;
             regdoc.RegDocIn.GestDocTestaProge = true;
             regdoc.RegDocIn.GestDocCorpo = true;
@@ -163,7 +191,7 @@ namespace Documenti.BoDocumenti
 
         public void CreaDocumento(string coddocum, short pers)
         {
-            regdoc.RegDocIn.Ditta = codditta;
+            regdoc.RegDocIn.Ditta = Codditta;
             regdoc.RegDocIn.Documento = coddocum.TrimEnd();
             regdoc.RegDocIn.GestDocTestata = true;
             regdoc.RegDocIn.GestDocTestaRif = true;
@@ -171,6 +199,7 @@ namespace Documenti.BoDocumenti
             regdoc.RegDocIn.GestDocDatiAcc = true;
             regdoc.RegDocIn.GestDocCorpo = true;
             regdoc.RegDocIn.GestDocCorpoOrd = true;
+ 
             regdoc.Initialize();
             regdoc.ConfiguraRstGestiti(coddocum.TrimEnd(), pers);
             
@@ -299,6 +328,29 @@ namespace Documenti.BoDocumenti
             regdoc.UpdateDocCorpo();
         }
 
+        public void AggiungiRigaLotto(string codart, string variante, decimal qta1, string lotto, string seriale , string coddep,int proglotto)
+        {
+            SetProgMovLotti();
+            regdoc.AddNewDocCorpo();
+            regdoc.CambiaDocCorpoCodart(codart, variante);
+            regdoc.CambiaDocCorpoQta1(qta1, true, true);
+
+            SetFieldValue(RecordsetType.RstDocCorpo, "DO30_DESCART", "test setvalue");
+
+            regdoc.AddNewDocCorpoLot();
+
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_PROG_MG4F", ProgMovLotti);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_PROG", proglotto);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODART_MG66", codart);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_OPZIONE_MG5E", variante);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODDEP_MG58", coddep);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODLOTTO_MG4G", lotto);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1", qta1);
+
+            regdoc.UpdateDocCorpoLot();
+            regdoc.UpdateDocCorpo();
+        }
+
         public void UpdateDocCorpo()
         {
             regdoc.UpdateDocCorpo();
@@ -307,6 +359,15 @@ namespace Documenti.BoDocumenti
         public void DeleteDocCorpo()
         {
             regdoc.DeleteDocCorpo();
+        }
+
+        public void ModificaDocCorpoLotti(int progMG4f, int prog)
+        {
+            int progRiga = int.Parse(GetFieldFromRecordset(RecordsetType.RstDocCorpo, "DO30_PROGRIGA").Value.ToString());
+            IRecordset rstDocCorpoLotti = GetRecordset(RecordsetType.RstDocCorpoLot);
+            IRecordset rstDocCorpoLottiClone = rstDocCorpoLotti.Clone();
+            rstDocCorpoLottiClone.Filter = String.Format("DO52_PROGRIGA = {0} AND DO52_PROG_MG4F = {1} AND DO52_PROG = {2}", progRiga, progMG4f, prog);
+            rstDocCorpoLotti.Bookmark = rstDocCorpoLottiClone.Bookmark;
         }
 
         public DataTable RstDoccorpo()
@@ -342,6 +403,140 @@ namespace Documenti.BoDocumenti
             }
 
             return corpo;
+        }
+
+        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
+        {
+            bool res = false;
+            string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;
+
+            string commandText = @"SELECT TOP 1 1
+                                        FROM  
+                                    MG4G_ANAGRLOTTI 
+                                    WHERE  
+                                    MG4G_DITTA_CG18 = @codditta
+                                    AND MG4G_CODART_MG66 = @codiceArticolo
+                                    AND MG4G_OPZIONE_MG5E = @variante
+                                    AND MG4G_CODLOTTO = @codlotto";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(commandText, connection);
+                command.Parameters.Add("@codditta", SqlDbType.Decimal);
+                command.Parameters["@codditta"].Value = Codditta;
+                command.Parameters.Add("@codiceArticolo", SqlDbType.Char);
+                command.Parameters["@codiceArticolo"].Value = codart;
+                command.Parameters.Add("@variante", SqlDbType.Char);
+                command.Parameters["@variante"].Value = variante;
+                command.Parameters.Add("@codlotto", SqlDbType.Char);
+                command.Parameters["@codlotto"].Value = codlotto;
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        return false;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    res = false;
+                }
+
+                commandText = @"INSERT INTO MG4G_ANAGRLOTTI
+                (
+                MG4G_DITTA_CG18
+                ,MG4G_CODART_MG66
+                ,MG4G_OPZIONE_MG5E 
+                ,MG4G_CODLOTTO 
+                ,MG4G_DESCLOTTO 
+                ,MG4G_DATACRE 
+                ,MG4G_DATASCAD
+                ,MG4G_GUID 
+                ) 
+                VALUES ( 
+                       @codditta,
+                       @codiceArticolo,
+                       @variante ,
+                       @codlotto,
+                       @descrlotto,
+                       @datacre ,
+                       @datascad,
+                       @guid
+                       )";
+                using (SqlConnection connection2 = new SqlConnection(connectionString))
+                {
+                    SqlCommand command2 = new SqlCommand(commandText, connection2);
+                    command2.Parameters.Add("@codditta", SqlDbType.Decimal);
+                    command2.Parameters["@codditta"].Value = Codditta;
+                    command2.Parameters.Add("@codiceArticolo", SqlDbType.Char);
+                    command2.Parameters["@codiceArticolo"].Value = codart;
+                    command2.Parameters.Add("@variante", SqlDbType.Char);
+                    command2.Parameters["@variante"].Value = variante;
+                    command2.Parameters.Add("@codlotto", SqlDbType.Char);
+                    command2.Parameters["@codlotto"].Value = codlotto;
+                    command2.Parameters.Add("@descrlotto", SqlDbType.Char);
+                    command2.Parameters["@descrlotto"].Value = descrlotto;
+                    command2.Parameters.Add("@datacre", SqlDbType.DateTime);
+                    command2.Parameters["@datacre"].Value = datacre;
+                    command2.Parameters.Add("@datascad", SqlDbType.DateTime);
+                    command2.Parameters["@datascad"].Value = datascad;
+                    command2.Parameters.Add("@guid", SqlDbType.Char);
+                    command2.Parameters["@guid"].Value = Guid.NewGuid();
+
+                    try
+                    {
+                        connection2.Open();
+                        res = true;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        res = false;
+                    }
+                }
+                return res;
+            }
+        }
+        internal void SetProgMovLotti()
+        {
+            string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;
+
+            string commandText = @"SELECT MG4F_PROG , MG4F_TIPOMOV 
+                                        FROM  
+                                    MG4F_PARAMMOVLOTTI WITH (NOLOCK) 
+                                    WHERE  
+                                    MG4F_DITTA_CG18 = @codditta
+                                    AND MG4F_TIPOMOV LIKE '%LOT%'";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(commandText, connection);
+                command.Parameters.Add("@codditta", SqlDbType.Decimal);
+                command.Parameters["@codditta"].Value = Codditta;
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        ProgMovLotti = int.Parse(reader["MG4F_PROG"].ToString());
+                        TipoMovLotti = reader["MG4F_TIPOMOV"].ToString();
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+
+                }
+            }
         }
     }
 }

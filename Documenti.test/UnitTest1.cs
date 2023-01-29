@@ -20,11 +20,27 @@ namespace Documenti.test
             boreg.CreaDocumento("CLS-FATIMM2", 1);
             boreg.CambiaClifor(3);
           
-            boreg.AggiungiRigaArticolo("TENS", "", 11);
+            boreg.AggiungiRigaArticolo("TEN", "", 11);
             string numreg = boreg.UpdateDocTestataNumreg();
             Assert.AreEqual("2022", numreg.ToString().Substring(0,4));
             boreg.Termina();
         }
+
+        [TestMethod]
+        public void TestCreadocumentoConLotto()
+        {
+            BoDocumenti.BoDocumenti boreg = new BoDocumenti.BoDocumenti();
+            boreg.Inizializza("VM-COCOZZA", "ARSMEDICA", "sa", "teamsystem", "GammaEnterprise", "admin", "admin", 1);
+            boreg.CreaDocumento("CLS-DDT", 0);
+            boreg.CambiaClifor(3);
+
+           // boreg.AggiungiRigaArticolo("CONTRIBUTO", "", 10);
+            boreg.AggiungiRigaLotto("CONTRIBUTO", "", 10, "LOTTO1", "", "00", 1);
+            string numreg = boreg.UpdateDocTestataNumreg();
+            Assert.AreEqual("2023", numreg.ToString().Substring(0, 4));
+            boreg.Termina();
+        }
+
 
         [TestMethod]
         public void TestModificadocumento()

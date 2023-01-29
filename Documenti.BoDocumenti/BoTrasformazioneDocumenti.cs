@@ -317,7 +317,7 @@ namespace Documenti.BoTrasformazioneDocumenti
             }
         }
 
-        private bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
+        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
         {
             bool res = false;
             string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;

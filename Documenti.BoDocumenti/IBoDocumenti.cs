@@ -27,6 +27,7 @@ namespace Documenti.BoDocumenti
         void UpdateDocTestata();
         string UpdateDocTestataNumreg();
         void AggiungiRigaArticolo(string codart, string variante, decimal qta1);
+        void AggiungiRigaLotto(string codart, string variante, decimal qta1, string lotto, string seriale, string coddep, int proglotto);
         void AggiungiRigaDescrittiva(string descrizione, string descrizioneest);
         void CambiaCodart(Int32 progriga, string codart, string variante);
         void CambiaQta1(Int32 progriga, decimal qta1);

@@ -117,7 +117,7 @@ namespace Documenti.Interop
         bool rstDocCorOrdDetChanged { get; set; }
         bool rstDocCorpoScMagChanged { get; set; }
         bool rstDocCorPrelChanged { get; set; }
-        bool rstDocCorpoLotChanged { get; set; }
+        bool RstDocCorpoLotChanged { get; set; }
         bool rstDocCorpoCoinChanged { get; set; }
         bool rstDocAccontiChanged { get; set; }
         bool rstDocCorpoGridChanged { get; set; }
