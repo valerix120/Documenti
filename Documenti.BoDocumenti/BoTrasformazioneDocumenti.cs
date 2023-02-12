@@ -137,13 +137,13 @@ namespace Documenti.BoTrasformazioneDocumenti
                 trasfdoc.DocRegMagazzino.MovimentazioneLotti_Ext.Parametri.ModalitaPresidiata = false;
                 trasfdoc.RegTrasfDocIn.DisabilitaMessaggi = true;
 
-                Console.WriteLine("etro nel rst testata" + rstTestata.RecordCount.ToString());
+                //Console.WriteLine("etro nel rst testata" + rstTestata.RecordCount.ToString());
                 if (daticorpo != null && daticorpo.Count > 0)
                 {
 
                     rstCorpo.Filter = "DO30_NUMREG_CO99 = '" + numreg + "'";
                     rstCorpo.MoveFirst();
-                    Console.WriteLine("etro nel dati corpo" + rstCorpo.RecordCount.ToString());
+                    //Console.WriteLine("etro nel dati corpo" + rstCorpo.RecordCount.ToString());
                     while (!rstCorpo.EOF)
                     {
                         Console.WriteLine("scorro i dati corpo");
@@ -153,17 +153,17 @@ namespace Documenti.BoTrasformazioneDocumenti
                         string varianteriga = GetFieldValue(RecordsetType.RstDocCorpo, "DO30_OPZIONE_MG5E").ToString();
                         if (dtfiltrati.Count != 0)
                         {
-                            Console.WriteLine("filtro prog riga n." + progriga.ToString());
+                            //Console.WriteLine("filtro prog riga n." + progriga.ToString());
                             foreach (var item in dtfiltrati)
                             {
-                                Console.WriteLine("aggiorno le qta riga n."+ progriga.ToString());
+                                //Console.WriteLine("aggiorno le qta riga n."+ progriga.ToString());
                                 trasfdoc.CambiaDocCorpoQta1(item.Qta1, false, false);
                                 trasfdoc.CambiaDocCorpoQta2(item.Qta2, false, false);
 
                                 rstCorpo.UpdateBatch();
                                 if (trasfdoc.RegTrasfDocIn.GestDocCorpoLot && datilotti != null && datilotti.Count() > 0)
                                 {
-                                    Console.WriteLine("entro nel giro dei lotti");
+                                    //Console.WriteLine("entro nel giro dei lotti");
                                     List<DatiCorpoLot> lottifiltrati = datilotti.Where(x => x.Progriga == progriga).ToList();
                                     foreach (var itemlotto in lottifiltrati)
                                     {
@@ -226,7 +226,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                                                 SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2", itemlotto.Qta2Lot);
                                                 SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2CONS", itemlotto.Qta2Lot);
                                             }
-                                            Console.WriteLine("aggiorno i lotti ");
+                                            //Console.WriteLine("aggiorno i lotti ");
                                             trasfdoc.rstDocCorpoLot.UpdateBatch();
                                         }
 
@@ -245,7 +245,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                 rstTestata.MoveNext();
             }
 
-            Console.WriteLine("genero i doc");
+           // Console.WriteLine("genero i doc");
             trasfdoc.GeneraTuttiDocumenti();
 
 
@@ -353,11 +353,13 @@ namespace Documenti.BoTrasformazioneDocumenti
                     }
 
                 }
-                catch (Exception ex)
+                catch (SqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                     res = false;
                 }
+
+                connection.Close();
 
                 commandText = @"INSERT INTO MG4G_ANAGRLOTTI
                 (
@@ -397,22 +399,26 @@ namespace Documenti.BoTrasformazioneDocumenti
                     command2.Parameters["@datacre"].Value = datacre;
                     command2.Parameters.Add("@datascad", SqlDbType.DateTime);
                     command2.Parameters["@datascad"].Value = datascad;
-                    command2.Parameters.Add("@guid", SqlDbType.Char);
+                    command2.Parameters.Add("@guid", SqlDbType.UniqueIdentifier);
                     command2.Parameters["@guid"].Value = Guid.NewGuid();
 
                     try
                     {
                         connection2.Open();
+                        command2.ExecuteNonQuery();
                         res = true;
 
                     }
-                    catch (Exception ex)
+                    catch (SqlException ex)
                     {
                         Console.WriteLine(ex.Message);
                         res = false;
                     }
+                    connection2.Close();
                 }
+                
                 return res;
+
             }
         }
 

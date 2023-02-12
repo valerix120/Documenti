@@ -1,4 +1,5 @@
-﻿using Documenti.Interop;
+﻿
+using Documenti.Interop;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -150,7 +151,7 @@ namespace Documenti.BoDocumenti
             wrapper.Terminate();
         }
 
-        public void ModificaDoc(string codicedoc, string numreg)
+        public void ModificaDoc(string codicedoc, short pers, string numreg)
         {
             regdoc.RegDocIn.Ditta = Codditta;
             regdoc.RegDocIn.GestDocTestata = true;
@@ -162,7 +163,7 @@ namespace Documenti.BoDocumenti
 
 
             regdoc.Initialize();
-
+            regdoc.ConfiguraRstGestiti(codicedoc.TrimEnd(), pers);
             regdoc.OpenDocTestata("1=0");
             regdoc.OpenDocTestaProge("1=0");
             regdoc.OpenDocCorpo("1=0");
@@ -328,14 +329,10 @@ namespace Documenti.BoDocumenti
             regdoc.UpdateDocCorpo();
         }
 
-        public void AggiungiRigaLotto(string codart, string variante, decimal qta1, string lotto, string seriale , string coddep,int proglotto)
+        public void AggiungiRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string seriale , string coddep,int proglotto)
         {
             SetProgMovLotti();
-            regdoc.AddNewDocCorpo();
-            regdoc.CambiaDocCorpoCodart(codart, variante);
-            regdoc.CambiaDocCorpoQta1(qta1, true, true);
-
-            SetFieldValue(RecordsetType.RstDocCorpo, "DO30_DESCART", "test setvalue");
+            AddAnagLotto(codart, variante,lotto, "");
 
             regdoc.AddNewDocCorpoLot();
 
@@ -346,6 +343,33 @@ namespace Documenti.BoDocumenti
             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODDEP_MG58", coddep);
             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODLOTTO_MG4G", lotto);
             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1", qta1);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2", qta2);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1CONS", 0);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2CONS", 0);
+
+            regdoc.UpdateDocCorpoLot();
+            regdoc.UpdateDocCorpo();
+        }
+
+        public void ModificaRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string seriale, string coddep, int progriga, int proglotto)
+        {
+            SetProgMovLotti();
+
+            AddAnagLotto(codart, variante, lotto, "");
+
+            IRecordset rstDocCorpoLotti = GetRecordset(RecordsetType.RstDocCorpoLot);
+            IRecordset rstDocCorpoLottiClone = rstDocCorpoLotti.Clone();
+            rstDocCorpoLottiClone.Filter = String.Format("DO52_PROGRIGA = {0} AND DO52_PROG_MG4F = {1} AND DO52_PROG = {2}", progriga, ProgMovLotti, proglotto);
+            rstDocCorpoLotti.Bookmark = rstDocCorpoLottiClone.Bookmark;
+
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODART_MG66", codart);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_OPZIONE_MG5E", variante);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODDEP_MG58", coddep);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODLOTTO_MG4G", lotto);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1", qta1);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2", qta2);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1CONS", 0);
+            SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA2CONS", 0);
 
             regdoc.UpdateDocCorpoLot();
             regdoc.UpdateDocCorpo();
@@ -359,15 +383,6 @@ namespace Documenti.BoDocumenti
         public void DeleteDocCorpo()
         {
             regdoc.DeleteDocCorpo();
-        }
-
-        public void ModificaDocCorpoLotti(int progMG4f, int prog)
-        {
-            int progRiga = int.Parse(GetFieldFromRecordset(RecordsetType.RstDocCorpo, "DO30_PROGRIGA").Value.ToString());
-            IRecordset rstDocCorpoLotti = GetRecordset(RecordsetType.RstDocCorpoLot);
-            IRecordset rstDocCorpoLottiClone = rstDocCorpoLotti.Clone();
-            rstDocCorpoLottiClone.Filter = String.Format("DO52_PROGRIGA = {0} AND DO52_PROG_MG4F = {1} AND DO52_PROG = {2}", progRiga, progMG4f, prog);
-            rstDocCorpoLotti.Bookmark = rstDocCorpoLottiClone.Bookmark;
         }
 
         public DataTable RstDoccorpo()
@@ -405,9 +420,10 @@ namespace Documenti.BoDocumenti
             return corpo;
         }
 
-        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
+        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto)
         {
             bool res = false;
+            DateTime datacre = DateTime.Now;
             string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;
 
             string commandText = @"SELECT TOP 1 1
@@ -441,13 +457,14 @@ namespace Documenti.BoDocumenti
                     }
 
                 }
-                catch (Exception ex)
+                catch (SqlException ex)
                 {
                     Console.WriteLine(ex.Message);
                     res = false;
                 }
+                connection.Close();
 
-                commandText = @"INSERT INTO MG4G_ANAGRLOTTI
+                string commandText2 = @"INSERT INTO MG4G_ANAGRLOTTI
                 (
                 MG4G_DITTA_CG18
                 ,MG4G_CODART_MG66
@@ -455,7 +472,7 @@ namespace Documenti.BoDocumenti
                 ,MG4G_CODLOTTO 
                 ,MG4G_DESCLOTTO 
                 ,MG4G_DATACRE 
-                ,MG4G_DATASCAD
+  
                 ,MG4G_GUID 
                 ) 
                 VALUES ( 
@@ -465,12 +482,12 @@ namespace Documenti.BoDocumenti
                        @codlotto,
                        @descrlotto,
                        @datacre ,
-                       @datascad,
+
                        @guid
                        )";
                 using (SqlConnection connection2 = new SqlConnection(connectionString))
                 {
-                    SqlCommand command2 = new SqlCommand(commandText, connection2);
+                    SqlCommand command2 = new SqlCommand(commandText2, connection2);
                     command2.Parameters.Add("@codditta", SqlDbType.Decimal);
                     command2.Parameters["@codditta"].Value = Codditta;
                     command2.Parameters.Add("@codiceArticolo", SqlDbType.Char);
@@ -483,23 +500,26 @@ namespace Documenti.BoDocumenti
                     command2.Parameters["@descrlotto"].Value = descrlotto;
                     command2.Parameters.Add("@datacre", SqlDbType.DateTime);
                     command2.Parameters["@datacre"].Value = datacre;
-                    command2.Parameters.Add("@datascad", SqlDbType.DateTime);
-                    command2.Parameters["@datascad"].Value = datascad;
-                    command2.Parameters.Add("@guid", SqlDbType.Char);
+                    //command2.Parameters.Add("@datascad", SqlDbType.DateTime);
+                    //command2.Parameters["@datascad"].Value = null;
+                    command2.Parameters.Add("@guid", SqlDbType.UniqueIdentifier);
                     command2.Parameters["@guid"].Value = Guid.NewGuid();
 
                     try
                     {
                         connection2.Open();
+                        command2.ExecuteNonQuery();
                         res = true;
 
                     }
-                    catch (Exception ex)
+                    catch (SqlException ex)
                     {
                         Console.WriteLine(ex.Message);
                         res = false;
                     }
+                    connection2.Close();
                 }
+                
                 return res;
             }
         }

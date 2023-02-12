@@ -23,11 +23,12 @@ namespace Documenti.BoDocumenti
         void CambiaDocTestataCodDep(string coddep, string coddepcoll);
         bool GestDocCorpoProge();
         void CambiaDocTestaProgeCommessa(object codcommessa, object codsottocomessa, bool modificasurighecorpo);
-        void ModificaDoc(string codicedoc, string numreg);
+        void ModificaDoc(string codicedoc, short pers, string numreg);
         void UpdateDocTestata();
         string UpdateDocTestataNumreg();
         void AggiungiRigaArticolo(string codart, string variante, decimal qta1);
-        void AggiungiRigaLotto(string codart, string variante, decimal qta1, string lotto, string seriale, string coddep, int proglotto);
+        void AggiungiRigaLotto(string codart, string variante, decimal qta1, decimal qta2,string lotto, string seriale, string coddep, int proglotto);
+        void ModificaRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string seriale, string coddep,int progriga, int proglotto);
         void AggiungiRigaDescrittiva(string descrizione, string descrizioneest);
         void CambiaCodart(Int32 progriga, string codart, string variante);
         void CambiaQta1(Int32 progriga, decimal qta1);
