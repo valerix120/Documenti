@@ -22,10 +22,10 @@ namespace Documenti
         public string Codart { get; set; }
         public int Proglotto { get; set; }
         public string CodLotto { get; set; }
-        public string Serialnumber { get; set; }
+        //public string Serialnumber { get; set; }
         public decimal Qta1Lot { get; set; }
         public decimal Qta2Lot { get; set; }
         public DateTime Datacre { get; set; }
-        public DateTime Datascad { get; set; }
+        //public DateTime Datascad { get; set; }
     }
 }

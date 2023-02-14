@@ -35,7 +35,7 @@ namespace Documenti.test
             boreg.CambiaClifor(3);
 
             boreg.AggiungiRigaArticolo("CONTRIBUTO", "", 10);
-            boreg.AggiungiRigaLotto("CONTRIBUTO", "", 10, 0, "LOTTO2", "", "00", 1);
+            boreg.AggiungiRigaLotto("CONTRIBUTO", "", 10, 0, "LOTTO2", "00", 1);
             string numreg = boreg.UpdateDocTestataNumreg();
             Assert.AreEqual("2023", numreg.ToString().Substring(0, 4));
             boreg.Termina();
@@ -69,7 +69,7 @@ namespace Documenti.test
             boreg.CambiaDocCorpoScPer1(1, 2);
             boreg.CambiaDocCorpoScPer2(1, 3);
             boreg.CambiaDocCorpoScPer3(1, 4);
-            boreg.ModificaRigaLotto("CONTRIBUTO", "", 10, 0, "LOTTO6", "", "00",1, 1);
+            boreg.ModificaRigaLotto("CONTRIBUTO", "", 10, 0, "LOTTO6", "00",1, 1);
             
             boreg.UpdateDocTestata();
 
@@ -106,14 +106,15 @@ namespace Documenti.test
 
             dtcorpolot.Add(colot);
 
-            colot.Proglotto = 2;
-            colot.Progriga = 2;
-            colot.Codart = "CONTRIBUTO";
-            colot.CodLotto = "LOTTO1";
-            colot.Qta1Lot = 5;
-            colot.Qta2Lot = 0;
+            DatiCorpoLot colot2 = new DatiCorpoLot();
+            colot2.Proglotto = 2;
+            colot2.Progriga = 2;
+            colot2.Codart = "CONTRIBUTO";
+            colot2.CodLotto = "LOTTO1";
+            colot2.Qta1Lot = 5;
+            colot2.Qta2Lot = 0;
 
-            dtcorpolot.Add(colot);
+            dtcorpolot.Add(colot2);
 
             trasfdoc.TrasformazioneDocumento("CLS-ORDDDT", "202300000002", dtcorpo, dtcorpolot);
             trasfdoc.Termina();

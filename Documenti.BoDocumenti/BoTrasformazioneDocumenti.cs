@@ -146,7 +146,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                     //Console.WriteLine("etro nel dati corpo" + rstCorpo.RecordCount.ToString());
                     while (!rstCorpo.EOF)
                     {
-                        Console.WriteLine("scorro i dati corpo");
+                       // Console.WriteLine("scorro i dati corpo");
                         int progriga = int.Parse(GetFieldValue(RecordsetType.RstDocCorpo, "DO30_PROGRIGA").ToString());
                         List<DatiCorpo> dtfiltrati = daticorpo.Where(x => x.ProgRiga == progriga).ToList();
                         string codartriga = GetFieldValue(RecordsetType.RstDocCorpo, "DO30_CODART_MG66").ToString();
@@ -179,10 +179,10 @@ namespace Documenti.BoTrasformazioneDocumenti
                                                 {
                                                     str_filtrolotti = str_filtrolotti + " AND DO52_CODLOTTO_MG4G = '" + itemlotto.CodLotto + "'";
                                                 }
-                                                if (itemlotto.Serialnumber != "")
-                                                {
-                                                    str_filtrolotti = str_filtrolotti + " AND DO52_SERNUM = '" + itemlotto.Serialnumber + "'";
-                                                }
+                                                //if (itemlotto.Serialnumber != "")
+                                                //{
+                                                //    str_filtrolotti = str_filtrolotti + " AND DO52_SERNUM = '" + itemlotto.Serialnumber + "'";
+                                                //}
 
                                                 trasfdoc.rstDocCorpoLot.Filter = str_filtrolotti;
 
@@ -190,7 +190,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                                                 {
                                                     trasfdoc.rstDocCorpoLot.Filter = 0;
                                                     trasfdoc.rstDocCorpoLot.Filter = "DO52_PROGRIGA = " + itemlotto.Progriga + " AND DO52_PROG_MG4F = " + ProgMovLotti;
-                                                    AddAnagLotto(codartriga, varianteriga, itemlotto.CodLotto, "", itemlotto.Datacre, itemlotto.Datascad);
+                                                    AddAnagLotto(codartriga, varianteriga, itemlotto.CodLotto, "", itemlotto.Datacre);
                                                     progDo52 = trasfdoc.rstDocCorpoLot.RecordCount + 1;
                                                     trasfdoc.rstDocCorpoLot.Filter = 0;
                                                     trasfdoc.rstDocCorpoLot.AddNew();
@@ -203,7 +203,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                                                 trasfdoc.rstDocCorpoLot.Filter = 0;
                                                 trasfdoc.rstDocCorpoLot.Filter = "DO52_PROGRIGA = " + itemlotto.Progriga + " AND DO52_PROG_MG4F = " + ProgMovLotti + " AND DO52_PROG = " + itemlotto.Proglotto;
                                                 progDo52 = trasfdoc.rstDocCorpoLot.RecordCount + 1;
-                                                AddAnagLotto(codartriga, varianteriga, itemlotto.CodLotto, "", itemlotto.Datacre, itemlotto.Datascad);
+                                                AddAnagLotto(codartriga, varianteriga, itemlotto.CodLotto, "", itemlotto.Datacre);
                                                 trasfdoc.rstDocCorpoLot.AddNew();
                                             }
                                             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_DITTA_CG18", Codditta);
@@ -217,9 +217,9 @@ namespace Documenti.BoTrasformazioneDocumenti
                                             if (itemlotto.CodLotto != "") {
                                                 SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_CODLOTTO_MG4G", itemlotto.CodLotto);
                                             }
-                                            if (itemlotto.Serialnumber != "") {
-                                                SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_SERNUM", itemlotto.Serialnumber);
-                                            }
+                                            //if (itemlotto.Serialnumber != "") {
+                                            //    SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_SERNUM", itemlotto.Serialnumber);
+                                            //}
                                             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1", itemlotto.Qta1Lot);
                                             SetFieldValue(RecordsetType.RstDocCorpoLot, "DO52_QTA1CONS", itemlotto.Qta1Lot);
                                             if (itemlotto.Qta2Lot != 0) {
@@ -317,7 +317,7 @@ namespace Documenti.BoTrasformazioneDocumenti
             }
         }
 
-        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre, DateTime datascad)
+        internal bool AddAnagLotto(string codart, string variante, string codlotto, string descrlotto, DateTime datacre)
         {
             bool res = false;
             string connectionString = "SERVER=" + Server + ";UID=" + Utentesql + "; PWD=" + Password + ";DATABASE=" + Database;
@@ -398,7 +398,7 @@ namespace Documenti.BoTrasformazioneDocumenti
                     command2.Parameters.Add("@datacre", SqlDbType.DateTime);
                     command2.Parameters["@datacre"].Value = datacre;
                     command2.Parameters.Add("@datascad", SqlDbType.DateTime);
-                    command2.Parameters["@datascad"].Value = datascad;
+                    command2.Parameters["@datascad"].Value = null;
                     command2.Parameters.Add("@guid", SqlDbType.UniqueIdentifier);
                     command2.Parameters["@guid"].Value = Guid.NewGuid();
 

@@ -329,7 +329,7 @@ namespace Documenti.BoDocumenti
             regdoc.UpdateDocCorpo();
         }
 
-        public void AggiungiRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string seriale , string coddep,int proglotto)
+        public void AggiungiRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string coddep,int proglotto)
         {
             SetProgMovLotti();
             AddAnagLotto(codart, variante,lotto, "");
@@ -351,7 +351,7 @@ namespace Documenti.BoDocumenti
             regdoc.UpdateDocCorpo();
         }
 
-        public void ModificaRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string seriale, string coddep, int progriga, int proglotto)
+        public void ModificaRigaLotto(string codart, string variante, decimal qta1, decimal qta2, string lotto, string coddep, int progriga, int proglotto)
         {
             SetProgMovLotti();
 
